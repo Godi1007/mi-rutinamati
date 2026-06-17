@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7c3aed">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mi Rutina">
+<link rel="manifest" href="manifest.json">
+<title>Mi Rutina 🔥</title>
+<style>
+  :root {
+    --bg: #0f0f1a;
+    --surface: #1a1a2e;
+    --surface2: #242440;
+    --border: #2e2e50;
+    --accent: #7c3aed;
+    --accent2: #a855f7;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --orange: #f97316;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    max-width: 480px;
+    margin: 0 auto;
+    padding-bottom: 32px;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1a0533 0%, #0f0f1a 100%);
+    padding: 52px 20px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .app-title {
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent2), #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stats-row { display: flex; gap: 8px; align-items: center; }
+
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .stat-chip.streak { border-color: #f97316; color: #f97316; }
+  .stat-chip.xp { border-color: var(--accent2); color: var(--accent2); }
+
+  .mode-switch {
+    display: flex;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 8px 6px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    line-height: 1.2;
+  }
+
+  .mode-btn .mode-emoji { font-size: 18px; }
+
+  .mode-btn.active {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 2px 12px rgba(124,58,237,0.4);
+  }
+
+  .progress-section {
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 8px;
+  }
+
+  .progress-label .progress-count { font-weight: 700; color: var(--text); }
+
+  .progress-bar-track {
+    height: 10px;
+    background: var(--surface);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .main { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+
+  .date-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+  }
+
+  .date-header {
+    text-align: center;
+    color: var(--text2);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .preview-day-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    color: var(--text2);
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    position: absolute;
+    right: 0;
+  }
+
+  .preview-day-btn:active { transform: scale(0.9); background: var(--accent); }
+
+  .preview-bar {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(124,58,237,0.18);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent2);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background 0.15s;
+  }
+
+  .preview-bar.visible { display: flex; }
+  .preview-bar:active { background: rgba(124,58,237,0.3); }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .section-title {
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text2);
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .task-item:last-child { border-bottom: none; }
+  .task-item:active { background: var(--surface2); }
+  .task-item.completed { opacity: 0.6; }
+
+  .task-check {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-size: 14px;
+  }
+
+  .task-item.completed .task-check {
+    background: var(--green);
+    border-color: var(--green);
+    transform: scale(1.1);
+  }
+
+  .task-item.optional .task-check {
+    border-style: dashed;
+    border-color: var(--text2);
+  }
+
+  .task-item.optional.completed .task-check {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .task-content { flex: 1; }
+
+  .task-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .task-item.completed .task-label {
+    text-decoration: line-through;
+    color: var(--text2);
+  }
+
+  .task-meta { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  .badge-optional {
+    font-size: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: 6px;
+  }
+
+  /* ── WORKOUT SECTION ── */
+  .workout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(168,85,247,0.1));
+    border-bottom: 1px solid var(--border);
+  }
+
+  .workout-header:active { background: var(--surface2); }
+
+  .workout-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .workout-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--accent2);
+    letter-spacing: 0.3px;
+  }
+
+  .workout-subtitle {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 1px;
+  }
+
+  .workout-arrow {
+    font-size: 18px;
+    color: var(--accent2);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+  }
+
+  .workout-arrow.open { transform: rotate(90deg); }
+
+  .workout-progress-mini {
+    display: flex;
+    gap: 3px;
+    margin-top: 4px;
+  }
+
+  .workout-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.2s;
+  }
+
+  .workout-dot.done { background: var(--green); }
+
+  .workout-body { display: none; }
+  .workout-body.open { display: block; }
+
+  /* warmup note */
+  .workout-warmup {
+    margin: 10px 14px;
+    padding: 10px 12px;
+    background: rgba(234,179,8,0.1);
+    border: 1px solid rgba(234,179,8,0.3);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--yellow);
+    line-height: 1.4;
+  }
+
+  /* exercise row */
+  .exercise-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .exercise-item:last-child { border-bottom: none; }
+  .exercise-item.ex-done { opacity: 0.55; }
+
+  .exercise-check {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-size: 14px;
+    color: var(--accent);
+  }
+
+  .exercise-item.ex-done .exercise-check {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+    transform: scale(1.08);
+  }
+
+  .exercise-item.ex-done .exercise-name {
+    text-decoration: line-through;
+    color: var(--text2);
+  }
+
+  .exercise-content { flex: 1; cursor: pointer; }
+
+  .exercise-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .exercise-sets {
+    font-size: 11px;
+    color: var(--accent2);
+    margin-top: 2px;
+    font-weight: 600;
+  }
+
+  .exercise-info-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1.5px solid var(--accent);
+    color: var(--accent2);
+    font-size: 14px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .exercise-info-btn:active {
+    background: var(--accent);
+    color: white;
+    transform: scale(0.93);
+  }
+
+  .workout-tips {
+    margin: 10px 14px 14px;
+    padding: 10px 12px;
+    background: rgba(124,58,237,0.1);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .workout-tips b { color: var(--accent2); }
+
+  /* ── EXERCISE MODAL ── */
+  .ex-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 16px;
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+
+  .ex-modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .ex-modal {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(124,58,237,0.3);
+    margin-top: 40px;
+  }
+
+  .ex-modal-header {
+    background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(168,85,247,0.2));
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ex-modal-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text);
+    flex: 1;
+    line-height: 1.3;
+  }
+
+  .ex-modal-close {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+
+  .ex-modal-illustration {
+    background: #0a0a14;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    min-height: 200px;
+  }
+
+  .ex-modal-illustration svg { max-width: 100%; }
+
+  .ex-modal-body { padding: 16px 20px 24px; }
+
+  .ex-modal-sets {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ex-modal-tips {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+
+  .ex-modal-tips li {
+    margin-bottom: 6px;
+    padding-left: 4px;
+    list-style: none;
+    display: flex;
+    gap: 6px;
+  }
+
+  .ex-modal-tips li::before {
+    content: '→';
+    color: var(--accent2);
+    flex-shrink: 0;
+  }
+
+  /* ── REMINDERS ── */
+  .reminder-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .reminder-toggle:active { background: var(--surface2); }
+  .reminder-content { padding: 0 16px 14px; display: none; }
+  .reminder-content.open { display: block; }
+
+  .reminder-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--red);
+    border-bottom: 1px solid var(--border);
+  }
+  .reminder-item:last-child { border-bottom: none; }
+
+  /* ── CALENDAR ── */
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    padding: 14px;
+  }
+
+  .cal-header-day {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text2);
+    padding-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .cal-day {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--surface2);
+    color: var(--text2);
+  }
+
+  .cal-day.today { outline: 2px solid var(--accent); color: var(--text); }
+  .cal-day.done { background: var(--green); color: white; }
+  .cal-day.partial { background: var(--yellow); color: #1a1a00; }
+  .cal-day.missed { background: #2a1a1a; color: #7a4040; }
+  .cal-day.future { background: transparent; color: var(--border); }
+  .cal-day.empty { background: transparent; }
+
+  /* ── ACTIONS ── */
+  .bottom-actions { display: flex; gap: 10px; padding: 0 16px; }
+
+  .btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    box-shadow: 0 4px 15px rgba(124,58,237,0.3);
+  }
+
+  .sound-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text2);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .toggle-switch {
+    width: 36px;
+    height: 20px;
+    background: var(--border);
+    border-radius: 10px;
+    position: relative;
+    transition: background 0.2s;
+    margin-left: auto;
+  }
+
+  .toggle-switch.on { background: var(--accent); }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+  }
+
+  .toggle-switch.on::after { transform: translateX(16px); }
+
+  /* ── MEDALS ── */
+  .medals-row {
+    display: flex;
+    gap: 8px;
+    padding: 0 14px 14px;
+    flex-wrap: wrap;
+  }
+
+  .medal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 10px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text2);
+    min-width: 56px;
+    text-align: center;
+  }
+
+  .medal.earned {
+    border-color: var(--yellow);
+    color: var(--yellow);
+    background: rgba(234,179,8,0.1);
+  }
+
+  .medal-emoji { font-size: 22px; }
+
+  /* ── CONFETTI / TOAST ── */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    animation: confettiFall 1.5s ease-in forwards;
+    top: -10px;
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @keyframes checkPop {
+    0% { transform: scale(0.8); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1.1); }
+  }
+
+  .task-item.just-checked .task-check,
+  .exercise-item.just-checked .exercise-check {
+    animation: checkPop 0.3s ease-out forwards;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="app-title">Mi Rutina</div>
+    <div class="stats-row">
+      <div class="stat-chip streak">🔥 <span id="streak-count">0</span></div>
+      <div class="stat-chip xp">⚡ <span id="xp-count">0</span> XP</div>
+    </div>
+  </div>
+  <div class="mode-switch">
+    <button class="mode-btn active" data-mode="colegio" onclick="setMode('colegio')">
+      <span class="mode-emoji">🎒</span>Colegio
+    </button>
+    <button class="mode-btn" data-mode="feriado" onclick="setMode('feriado')">
+      <span class="mode-emoji">🏖️</span>Feriado
+    </button>
+    <button class="mode-btn" data-mode="vacaciones" onclick="setMode('vacaciones')">
+      <span class="mode-emoji">🌴</span>Vacaciones
+    </button>
+  </div>
+  <div class="progress-section">
+    <div class="progress-label">
+      <span>Progreso del día</span>
+      <span class="progress-count" id="progress-count">0/0</span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="date-row">
+    <div class="date-header" id="date-label"></div>
+    <div class="preview-day-btn" onclick="cyclePreviewDay()" title="Ver otro día">🕐</div>
+  </div>
+  <div class="preview-bar" id="preview-bar" onclick="clearPreview()">← Volver al día actual</div>
+  <div id="tasks-container"></div>
+
+  <div class="section" id="reminders-section" style="display:none">
+    <div class="reminder-toggle" onclick="toggleReminders()">
+      <span style="font-size:13px;font-weight:700;color:var(--red)">🚫 Reglas "Nunca"</span>
+      <span id="reminder-arrow" style="color:var(--text2);font-size:12px">▼</span>
+    </div>
+    <div class="reminder-content" id="reminder-content">
+      <div class="reminder-item">❌ No reventar granos</div>
+      <div class="reminder-item">❌ No usar aftershave con alcohol</div>
+      <div class="reminder-item">❌ No afeitar contrapelo</div>
+      <div class="reminder-item">❌ No hacer una tercera lavada de cara en el día</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📅 Calendario del mes</div>
+    <div class="calendar-grid" id="calendar-grid"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🏅 Logros</div>
+    <div class="medals-row" id="medals-row"></div>
+  </div>
+
+  <div class="bottom-actions">
+    <button class="btn btn-primary" onclick="resetDay()">🔄 Reiniciar día</button>
+    <div class="sound-toggle" onclick="toggleSound()" style="flex:0.6">
+      <span>🔔</span>
+      <div class="toggle-switch" id="sound-toggle-sw"></div>
+    </div>
+  </div>
+</div>
+
+<!-- EXERCISE MODAL -->
+<div class="ex-modal-overlay" id="ex-modal-overlay" onclick="closeModal(event)">
+  <div class="ex-modal" id="ex-modal">
+    <div class="ex-modal-header">
+      <div class="ex-modal-title" id="modal-title"></div>
+      <div class="ex-modal-close" onclick="closeModalDirect()">✕</div>
+    </div>
+    <div class="ex-modal-illustration" id="modal-illustration"></div>
+    <div class="ex-modal-body">
+      <div class="ex-modal-sets" id="modal-sets"></div>
+      <ul class="ex-modal-tips" id="modal-tips"></ul>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-container" id="confetti"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── SVG ILLUSTRATIONS ───────────────────────────────────────────────────────
+
+const SVG = {
+  sentadilla_goblet: `<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" width="180" height="189">
+    <line x1="20" y1="200" x2="180" y2="200" stroke="#2e2e50" stroke-width="2"/>
+    <!-- head -->
+    <circle cx="100" cy="32" r="14" stroke="#c084fc" stroke-width="3" fill="none"/>
+    <!-- torso (leaning slightly) -->
+    <line x1="100" y1="46" x2="97" y2="110" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- dumbbell at chest (horizontal) -->
+    <rect x="72" y="82" width="56" height="7" rx="3.5" fill="#f97316"/>
+    <circle cx="72" cy="85.5" r="10" fill="#f97316" opacity="0.8"/>
+    <circle cx="128" cy="85.5" r="10" fill="#f97316" opacity="0.8"/>
+    <!-- left arm -->
+    <line x1="97" y1="75" x2="78" y2="90" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- right arm -->
+    <line x1="97" y1="75" x2="116" y2="90" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- left leg (squat) -->
+    <line x1="97" y1="110" x2="62" y2="158" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="62" y1="158" x2="44" y2="198" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- right leg (squat) -->
+    <line x1="97" y1="110" x2="132" y2="158" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="132" y1="158" x2="150" y2="198" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- feet -->
+    <line x1="30" y1="200" x2="56" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="140" y1="200" x2="166" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- knee circles -->
+    <circle cx="62" cy="158" r="5" fill="#c084fc" opacity="0.6"/>
+    <circle cx="132" cy="158" r="5" fill="#c084fc" opacity="0.6"/>
+  </svg>`,
+
+  zancadas: `<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" width="180" height="189">
+    <line x1="20" y1="200" x2="180" y2="200" stroke="#2e2e50" stroke-width="2"/>
+    <!-- head -->
+    <circle cx="95" cy="30" r="14" stroke="#c084fc" stroke-width="3" fill="none"/>
+    <!-- torso upright -->
+    <line x1="95" y1="44" x2="95" y2="112" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- left arm down with dumbbell -->
+    <line x1="95" y1="65" x2="68" y2="118" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <rect x="55" y="113" width="24" height="6" rx="3" fill="#f97316"/>
+    <circle cx="55" cy="116" r="8" fill="#f97316" opacity="0.8"/>
+    <circle cx="79" cy="116" r="8" fill="#f97316" opacity="0.8"/>
+    <!-- right arm down with dumbbell -->
+    <line x1="95" y1="65" x2="122" y2="118" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <rect x="111" y="113" width="24" height="6" rx="3" fill="#f97316"/>
+    <circle cx="111" cy="116" r="8" fill="#f97316" opacity="0.8"/>
+    <circle cx="135" cy="116" r="8" fill="#f97316" opacity="0.8"/>
+    <!-- front leg (bent) -->
+    <line x1="95" y1="112" x2="68" y2="155" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="68" y1="155" x2="60" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- back leg (extended) -->
+    <line x1="95" y1="112" x2="128" y2="145" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="128" y1="145" x2="148" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- feet -->
+    <line x1="42" y1="200" x2="74" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="138" y1="200" x2="162" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="68" cy="155" r="5" fill="#c084fc" opacity="0.6"/>
+    <circle cx="128" cy="145" r="5" fill="#c084fc" opacity="0.6"/>
+  </svg>`,
+
+  peso_muerto: `<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" width="180" height="189">
+    <line x1="20" y1="200" x2="180" y2="200" stroke="#2e2e50" stroke-width="2"/>
+    <!-- head -->
+    <circle cx="60" cy="55" r="14" stroke="#c084fc" stroke-width="3" fill="none"/>
+    <!-- torso (hinged forward ~45°) -->
+    <line x1="65" y1="68" x2="120" y2="110" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- hips to legs -->
+    <line x1="120" y1="110" x2="110" y2="165" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="110" y1="165" x2="108" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="120" y1="110" x2="140" y2="160" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="140" y1="160" x2="142" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- arms hanging down holding dumbbells -->
+    <line x1="80" y1="85" x2="75" y2="148" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="105" y1="100" x2="102" y2="155" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- dumbbell left -->
+    <rect x="60" y="143" width="24" height="6" rx="3" fill="#f97316"/>
+    <circle cx="60" cy="146" r="9" fill="#f97316" opacity="0.8"/>
+    <circle cx="84" cy="146" r="9" fill="#f97316" opacity="0.8"/>
+    <!-- dumbbell right -->
+    <rect x="88" y="150" width="24" height="6" rx="3" fill="#f97316"/>
+    <circle cx="88" cy="153" r="9" fill="#f97316" opacity="0.8"/>
+    <circle cx="112" cy="153" r="9" fill="#f97316" opacity="0.8"/>
+    <!-- feet -->
+    <line x1="96" y1="200" x2="124" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="130" y1="200" x2="158" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- back neutral label -->
+    <text x="148" y="75" font-size="10" fill="#22c55e" font-family="sans-serif">✓ espalda</text>
+    <text x="148" y="87" font-size="10" fill="#22c55e" font-family="sans-serif">neutra</text>
+  </svg>`,
+
+  russian_twist: `<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" width="180" height="189">
+    <line x1="20" y1="188" x2="180" y2="188" stroke="#2e2e50" stroke-width="2"/>
+    <!-- torso at ~45° from floor (V-sit) -->
+    <!-- hips at center -->
+    <circle cx="100" cy="155" r="6" fill="#c084fc" opacity="0.5"/>
+    <!-- upper torso -->
+    <line x1="100" y1="155" x2="72" y2="110" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- head -->
+    <circle cx="64" cy="98" r="14" stroke="#c084fc" stroke-width="3" fill="none"/>
+    <!-- legs raised / knees bent -->
+    <line x1="100" y1="155" x2="140" y2="135" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="140" y1="135" x2="165" y2="165" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="100" y1="155" x2="128" y2="143" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="128" y1="143" x2="148" y2="175" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- arms holding dumbbell (twisted to one side) -->
+    <line x1="78" y1="118" x2="112" y2="105" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="78" y1="118" x2="46" y2="130" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- dumbbell (to the right side in this frame) -->
+    <rect x="108" y="100" width="24" height="6" rx="3" fill="#f97316"/>
+    <circle cx="108" cy="103" r="9" fill="#f97316" opacity="0.8"/>
+    <circle cx="132" cy="103" r="9" fill="#f97316" opacity="0.8"/>
+    <!-- rotation arrow -->
+    <path d="M 90 80 Q 120 60 140 90" stroke="#eab308" stroke-width="2" fill="none" stroke-dasharray="4"/>
+    <text x="130" y="60" font-size="10" fill="#eab308" font-family="sans-serif">giro</text>
+    <!-- knee circle -->
+    <circle cx="140" cy="135" r="5" fill="#c084fc" opacity="0.6"/>
+    <circle cx="128" cy="143" r="4" fill="#c084fc" opacity="0.5"/>
+  </svg>`,
+
+  plancha: `<svg viewBox="0 0 220 120" xmlns="http://www.w3.org/2000/svg" width="210" height="114">
+    <line x1="10" y1="105" x2="210" y2="105" stroke="#2e2e50" stroke-width="2"/>
+    <!-- body horizontal -->
+    <!-- head -->
+    <circle cx="35" cy="60" r="14" stroke="#c084fc" stroke-width="3" fill="none"/>
+    <!-- neck -->
+    <line x1="35" y1="74" x2="50" y2="80" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- torso -->
+    <line x1="50" y1="80" x2="165" y2="80" stroke="#c084fc" stroke-width="4" stroke-linecap="round"/>
+    <!-- hips slight rise -->
+    <!-- left forearm on ground -->
+    <line x1="65" y1="80" x2="55" y2="105" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="55" y1="105" x2="80" y2="105" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- right forearm on ground -->
+    <line x1="110" y1="80" x2="100" y2="105" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="100" y1="105" x2="125" y2="105" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- legs -->
+    <line x1="165" y1="80" x2="175" y2="105" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="175" y1="80" x2="185" y2="105" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- feet -->
+    <line x1="168" y1="105" x2="190" y2="105" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- timer -->
+    <text x="90" y="40" font-size="13" fill="#eab308" font-family="sans-serif" text-anchor="middle">⏱ 30 seg</text>
+    <!-- body line indicator -->
+    <line x1="35" y1="78" x2="180" y2="78" stroke="#22c55e" stroke-width="1" stroke-dasharray="5,3" opacity="0.5"/>
+    <text x="190" y="80" font-size="9" fill="#22c55e" font-family="sans-serif">línea</text>
+    <text x="190" y="91" font-size="9" fill="#22c55e" font-family="sans-serif">recta</text>
+  </svg>`,
+
+  press_pecho_suelo: `<svg viewBox="0 0 220 130" xmlns="http://www.w3.org/2000/svg" width="210" height="124">
+    <line x1="10" y1="115" x2="210" y2="115" stroke="#2e2e50" stroke-width="2"/>
+    <!-- person lying on floor -->
+    <!-- head -->
+    <circle cx="38" cy="90" r="14" stroke="#c084fc" stroke-width="3" fill="none"/>
+    <!-- torso on floor -->
+    <line x1="38" y1="104" x2="175" y2="104" stroke="#c084fc" stroke-width="4" stroke-linecap="round"/>
+    <!-- legs bent (knees up, feet flat) -->
+    <line x1="155" y1="104" x2="145" y2="80" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="145" y1="80" x2="158" y2="114" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="168" y1="104" x2="158" y2="78" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="158" y1="78" x2="172" y2="114" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- arms pressed UP (elbows at ~90° from floor) -->
+    <line x1="75" y1="100" x2="68" y2="60" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="110" y1="100" x2="118" y2="60" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- dumbbell bar at top -->
+    <rect x="58" y="54" width="68" height="7" rx="3.5" fill="#f97316"/>
+    <circle cx="58" cy="57.5" r="11" fill="#f97316" opacity="0.8"/>
+    <circle cx="126" cy="57.5" r="11" fill="#f97316" opacity="0.8"/>
+    <!-- elbow circles -->
+    <circle cx="68" cy="60" r="5" fill="#c084fc" opacity="0.5"/>
+    <circle cx="118" cy="60" r="5" fill="#c084fc" opacity="0.5"/>
+    <!-- up arrows -->
+    <text x="92" y="30" font-size="13" fill="#22c55e" font-family="sans-serif" text-anchor="middle">↑ empuje ↑</text>
+  </svg>`,
+
+  press_militar: `<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" width="180" height="189">
+    <line x1="20" y1="200" x2="180" y2="200" stroke="#2e2e50" stroke-width="2"/>
+    <!-- head -->
+    <circle cx="100" cy="30" r="14" stroke="#c084fc" stroke-width="3" fill="none"/>
+    <!-- torso -->
+    <line x1="100" y1="44" x2="100" y2="120" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- legs -->
+    <line x1="100" y1="120" x2="82" y2="175" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="82" y1="175" x2="78" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="100" y1="120" x2="118" y2="175" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="118" y1="175" x2="122" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- feet -->
+    <line x1="62" y1="200" x2="90" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="110" y1="200" x2="138" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- arms pressing overhead -->
+    <line x1="100" y1="72" x2="58" y2="52" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="100" y1="72" x2="142" y2="52" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- dumbbells overhead -->
+    <rect x="34" y="43" width="28" height="7" rx="3.5" fill="#f97316"/>
+    <circle cx="34" cy="46.5" r="10" fill="#f97316" opacity="0.8"/>
+    <circle cx="62" cy="46.5" r="10" fill="#f97316" opacity="0.8"/>
+    <rect x="138" y="43" width="28" height="7" rx="3.5" fill="#f97316"/>
+    <circle cx="138" cy="46.5" r="10" fill="#f97316" opacity="0.8"/>
+    <circle cx="166" cy="46.5" r="10" fill="#f97316" opacity="0.8"/>
+    <!-- up arrows -->
+    <text x="100" y="18" font-size="12" fill="#22c55e" font-family="sans-serif" text-anchor="middle">↑ arriba ↑</text>
+  </svg>`,
+
+  elevaciones_laterales: `<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" width="180" height="189">
+    <line x1="20" y1="200" x2="180" y2="200" stroke="#2e2e50" stroke-width="2"/>
+    <!-- head -->
+    <circle cx="100" cy="30" r="14" stroke="#c084fc" stroke-width="3" fill="none"/>
+    <!-- torso -->
+    <line x1="100" y1="44" x2="100" y2="120" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- legs -->
+    <line x1="100" y1="120" x2="84" y2="175" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="84" y1="175" x2="80" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="100" y1="120" x2="116" y2="175" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="116" y1="175" x2="120" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- feet -->
+    <line x1="64" y1="200" x2="92" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="108" y1="200" x2="136" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- arms raised sideways (T-position) -->
+    <line x1="100" y1="72" x2="30" y2="80" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="100" y1="72" x2="170" y2="80" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- dumbbells at hands -->
+    <rect x="14" y="74" width="20" height="6" rx="3" fill="#f97316"/>
+    <circle cx="14" cy="77" r="9" fill="#f97316" opacity="0.8"/>
+    <circle cx="34" cy="77" r="9" fill="#f97316" opacity="0.8"/>
+    <rect x="166" y="74" width="20" height="6" rx="3" fill="#f97316"/>
+    <circle cx="166" cy="77" r="9" fill="#f97316" opacity="0.8"/>
+    <circle cx="186" cy="77" r="9" fill="#f97316" opacity="0.8"/>
+    <!-- arc arrows -->
+    <path d="M 55 70 Q 42 55 38 72" stroke="#eab308" stroke-width="2" fill="none"/>
+    <path d="M 145 70 Q 158 55 162 72" stroke="#eab308" stroke-width="2" fill="none"/>
+    <text x="100" y="55" font-size="10" fill="#eab308" font-family="sans-serif" text-anchor="middle">hasta altura hombros</text>
+  </svg>`,
+
+  patada_triceps: `<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" width="180" height="189">
+    <line x1="20" y1="200" x2="180" y2="200" stroke="#2e2e50" stroke-width="2"/>
+    <!-- inclined torso ~45° -->
+    <circle cx="65" cy="72" r="14" stroke="#c084fc" stroke-width="3" fill="none"/>
+    <!-- torso -->
+    <line x1="70" y1="84" x2="128" y2="122" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- legs -->
+    <line x1="128" y1="122" x2="118" y2="170" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="118" y1="170" x2="115" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="128" y1="122" x2="145" y2="165" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="145" y1="165" x2="148" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- right arm: upper arm along torso, forearm kicked back -->
+    <line x1="108" y1="110" x2="100" y2="132" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="100" y1="132" x2="138" y2="125" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- dumbbell at end of kickback -->
+    <rect x="134" y="119" width="22" height="6" rx="3" fill="#f97316"/>
+    <circle cx="134" cy="122" r="8" fill="#f97316" opacity="0.8"/>
+    <circle cx="156" cy="122" r="8" fill="#f97316" opacity="0.8"/>
+    <!-- left arm support -->
+    <line x1="88" y1="100" x2="58" y2="148" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- feet -->
+    <line x1="98" y1="200" x2="126" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="136" y1="200" x2="164" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- elbow circle -->
+    <circle cx="100" cy="132" r="5" fill="#c084fc" opacity="0.6"/>
+    <text x="155" y="110" font-size="9" fill="#eab308" font-family="sans-serif">→ extensión</text>
+  </svg>`,
+
+  remo_inclinado: `<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" width="180" height="189">
+    <line x1="20" y1="200" x2="180" y2="200" stroke="#2e2e50" stroke-width="2"/>
+    <!-- inclined torso ~45° -->
+    <circle cx="62" cy="65" r="14" stroke="#c084fc" stroke-width="3" fill="none"/>
+    <line x1="67" y1="77" x2="128" y2="118" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- legs -->
+    <line x1="128" y1="118" x2="118" y2="168" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="118" y1="168" x2="115" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="128" y1="118" x2="148" y2="162" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="148" y1="162" x2="150" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- right arm pulling up to hip/ribcage -->
+    <line x1="108" y1="106" x2="90" y2="145" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- dumbbell pulled up -->
+    <rect x="76" y="139" width="22" height="6" rx="3" fill="#f97316"/>
+    <circle cx="76" cy="142" r="9" fill="#f97316" opacity="0.8"/>
+    <circle cx="98" cy="142" r="9" fill="#f97316" opacity="0.8"/>
+    <!-- left arm hanging -->
+    <line x1="85" y1="96" x2="72" y2="160" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <rect x="58" y="154" width="22" height="6" rx="3" fill="#f97316" opacity="0.5"/>
+    <circle cx="58" cy="157" r="9" fill="#f97316" opacity="0.4"/>
+    <circle cx="80" cy="157" r="9" fill="#f97316" opacity="0.4"/>
+    <!-- feet -->
+    <line x1="98" y1="200" x2="126" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="138" y1="200" x2="166" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- arrow -->
+    <text x="108" y="138" font-size="9" fill="#22c55e" font-family="sans-serif">↑ codo al cielo</text>
+  </svg>`,
+
+  curl_biceps: `<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" width="180" height="189">
+    <line x1="20" y1="200" x2="180" y2="200" stroke="#2e2e50" stroke-width="2"/>
+    <!-- head -->
+    <circle cx="100" cy="30" r="14" stroke="#c084fc" stroke-width="3" fill="none"/>
+    <!-- torso -->
+    <line x1="100" y1="44" x2="100" y2="122" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- legs -->
+    <line x1="100" y1="122" x2="84" y2="175" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="84" y1="175" x2="80" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="100" y1="122" x2="116" y2="175" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="116" y1="175" x2="120" y2="200" stroke="#c084fc" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- feet -->
+    <line x1="64" y1="200" x2="92" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="108" y1="200" x2="136" y2="200" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <!-- left arm curled up -->
+    <line x1="100" y1="78" x2="62" y2="105" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="62" y1="105" x2="44" y2="68" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <rect x="30" y="60" width="22" height="6" rx="3" fill="#f97316"/>
+    <circle cx="30" cy="63" r="9" fill="#f97316" opacity="0.8"/>
+    <circle cx="52" cy="63" r="9" fill="#f97316" opacity="0.8"/>
+    <!-- right arm down -->
+    <line x1="100" y1="78" x2="138" y2="95" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <line x1="138" y1="95" x2="148" y2="148" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+    <rect x="140" y="142" width="22" height="6" rx="3" fill="#f97316" opacity="0.6"/>
+    <circle cx="140" cy="145" r="9" fill="#f97316" opacity="0.5"/>
+    <circle cx="162" cy="145" r="9" fill="#f97316" opacity="0.5"/>
+    <!-- elbow circles -->
+    <circle cx="62" cy="105" r="5" fill="#c084fc" opacity="0.6"/>
+    <circle cx="138" cy="95" r="4" fill="#c084fc" opacity="0.5"/>
+    <text x="28" y="42" font-size="10" fill="#eab308" font-family="sans-serif">lento 3-4s</text>
+  </svg>`,
+};
+
+// ─── WORKOUT DATA ─────────────────────────────────────────────────────────────
+
+const WORKOUTS = {
+  1: { // Lunes
+    name: 'Tren inferior + Core',
+    exercises: [
+      {
+        id: 'w_lun_goblet', name: 'Sentadilla goblet', sets: '3 series de 12–15 reps',
+        svg: 'sentadilla_goblet',
+        tips: [
+          'Sostén la mancuerna de pie (vertical) pegada al pecho con ambas manos.',
+          'Pies a ancho de hombros, puntas ligeramente hacia fuera.',
+          'Baja manteniendo el pecho arriba y las rodillas siguiendo la dirección de los pies.',
+          'Baja hasta que los muslos queden paralelos al suelo (o lo más bajo que puedas).',
+          'Empuja el suelo al subir, no te inclines hacia adelante.',
+        ]
+      },
+      {
+        id: 'w_lun_zancadas', name: 'Zancadas alternadas', sets: '3 series de 10 reps por pierna',
+        svg: 'zancadas',
+        tips: [
+          'Mancuerna en cada mano a los costados, torso erguido.',
+          'Da un paso largo hacia adelante y baja la rodilla trasera sin golpear el suelo.',
+          'La rodilla delantera no debe pasar la punta del pie.',
+          'Empuja con el talón delantero para volver al centro.',
+          'Alterna piernas en cada repetición.',
+        ]
+      },
+      {
+        id: 'w_lun_pmuerto', name: 'Peso muerto rumano', sets: '3 series de 12 reps',
+        svg: 'peso_muerto',
+        tips: [
+          'Mancuernas colgando al frente, palmas hacia el cuerpo.',
+          'Mantén la espalda neutral (no arqueada ni redondeada) durante todo el movimiento.',
+          'Bisagra en la cadera empujando el trasero hacia atrás, no agaches la espalda.',
+          'Baja hasta sentir el estiramiento en los isquiotibiales (parte trasera del muslo).',
+          'Aprieta los glúteos al volver a la posición inicial.',
+        ]
+      },
+      {
+        id: 'w_lun_russian', name: 'Russian twist', sets: '3 series de 20 toques (10 por lado)',
+        svg: 'russian_twist',
+        tips: [
+          'Siéntate con las rodillas flexionadas, pies levemente levantados o apoyados.',
+          'Inclínate unos 45° hacia atrás, espalda recta.',
+          'Sujeta la mancuerna con ambas manos y gira el torso de lado a lado.',
+          'Cada vez que tocas un lado cuenta como 1 toque.',
+          'Mantén el abdomen contraído durante todo el ejercicio.',
+        ]
+      },
+      {
+        id: 'w_lun_plancha', name: 'Plancha', sets: '3 series de 30 segundos',
+        svg: 'plancha',
+        tips: [
+          'Apóyate en los antebrazos y puntas de los pies.',
+          'El cuerpo debe formar una línea recta: cabeza, espalda, caderas y talones.',
+          'No levantes la cadera ni la dejes caer.',
+          'Contrae el abdomen y los glúteos todo el tiempo.',
+          'Respira normalmente, no contengas el aire.',
+        ]
+      },
+    ]
+  },
+  3: { // Miércoles
+    name: 'Empuje — Pecho, Hombros y Tríceps',
+    exercises: [
+      {
+        id: 'w_mie_press_pecho', name: 'Press de pecho en suelo', sets: '3 series de 12 reps',
+        svg: 'press_pecho_suelo',
+        tips: [
+          'Acuéstate en el suelo, rodillas flexionadas, pies apoyados.',
+          'Mancuerna en cada mano a la altura del pecho, codos a ~45° del torso.',
+          'Empuja las mancuernas hacia arriba hasta extender los brazos.',
+          'Baja controlado hasta que los codos toquen el suelo.',
+          'El suelo limita el rango, perfecto para proteger el hombro.',
+        ]
+      },
+      {
+        id: 'w_mie_press_mil', name: 'Press militar de pie', sets: '3 series de 10–12 reps',
+        svg: 'press_militar',
+        tips: [
+          'De pie, mancuernas a la altura de los hombros, codos al frente.',
+          'Empuja hacia arriba hasta extender los brazos sobre la cabeza.',
+          'No arquees la espalda baja al subir, mantén el core firme.',
+          'Baja controlado a la posición inicial.',
+          'Respira: inhala abajo, exhala al empujar.',
+        ]
+      },
+      {
+        id: 'w_mie_elev_lat', name: 'Elevaciones laterales', sets: '3 series de 12–15 reps',
+        svg: 'elevaciones_laterales',
+        tips: [
+          'De pie, mancuernas a los costados, codos ligeramente flexionados.',
+          'Sube los brazos hacia los lados hasta la altura de los hombros.',
+          'No subas más arriba del hombro para no impactar el manguito.',
+          'Baja lento (3–4 seg) para maximizar el trabajo del músculo.',
+          'Con 7.5 kg se sentirán leves: baja aún más despacio para que cueste.',
+        ]
+      },
+      {
+        id: 'w_mie_patada', name: 'Patada de tríceps', sets: '3 series de 12 reps',
+        svg: 'patada_triceps',
+        tips: [
+          'Inclínate hacia adelante ~45°, codo junto al torso, mancuerna en la mano.',
+          'El brazo superior queda paralelo al suelo, el antebrazo cuelga abajo.',
+          'Extiende el antebrazo hacia atrás hasta quedar recto.',
+          'El codo no se mueve, solo el antebrazo.',
+          'Aprieta el tríceps al final del movimiento.',
+        ]
+      },
+      {
+        id: 'w_mie_plancha', name: 'Plancha', sets: '3 series de 30 segundos',
+        svg: 'plancha',
+        tips: [
+          'Apóyate en los antebrazos y puntas de los pies.',
+          'El cuerpo debe formar una línea recta: cabeza, espalda, caderas y talones.',
+          'No levantes la cadera ni la dejes caer.',
+          'Contrae el abdomen y los glúteos todo el tiempo.',
+          'Respira normalmente, no contengas el aire.',
+        ]
+      },
+    ]
+  },
+  5: { // Viernes
+    name: 'Tracción + Piernas — Espalda y Bíceps',
+    exercises: [
+      {
+        id: 'w_vie_remo', name: 'Remo inclinado', sets: '3 series de 12 reps',
+        svg: 'remo_inclinado',
+        tips: [
+          'Inclínate ~45° con la espalda neutral, mancuerna en cada mano.',
+          'Tira de los codos hacia atrás y arriba, apretando la espalda al llegar arriba.',
+          'Visualiza que quieres juntar los omóplatos.',
+          'Baja controlado, no dejes caer el peso.',
+          'El torso no debe moverse, solo los brazos.',
+        ]
+      },
+      {
+        id: 'w_vie_curl', name: 'Curl de bíceps', sets: '3 series de 12–15 reps',
+        svg: 'curl_biceps',
+        tips: [
+          'De pie, mancuernas a los costados, palmas mirando al frente.',
+          'Dobla el codo subiendo la mancuerna hacia el hombro.',
+          'El codo no se mueve, queda pegado al cuerpo.',
+          'Baja lento (3–4 seg): ese es el momento donde más se trabaja.',
+          'Con 7.5 kg se sentirá liviano, así que baja MUY lento para que cueste.',
+        ]
+      },
+      {
+        id: 'w_vie_goblet', name: 'Sentadilla goblet', sets: '3 series de 12–15 reps',
+        svg: 'sentadilla_goblet',
+        tips: [
+          'Sostén la mancuerna de pie (vertical) pegada al pecho con ambas manos.',
+          'Pies a ancho de hombros, puntas ligeramente hacia fuera.',
+          'Baja manteniendo el pecho arriba y las rodillas siguiendo la dirección de los pies.',
+          'Baja hasta que los muslos queden paralelos al suelo (o lo más bajo que puedas).',
+          'Empuja el suelo al subir, no te inclines hacia adelante.',
+        ]
+      },
+      {
+        id: 'w_vie_pmuerto', name: 'Peso muerto rumano', sets: '3 series de 12 reps',
+        svg: 'peso_muerto',
+        tips: [
+          'Mancuernas colgando al frente, palmas hacia el cuerpo.',
+          'Mantén la espalda neutral durante todo el movimiento.',
+          'Bisagra en la cadera empujando el trasero hacia atrás.',
+          'Baja hasta sentir el estiramiento en los isquiotibiales.',
+          'Aprieta los glúteos al volver a la posición inicial.',
+        ]
+      },
+      {
+        id: 'w_vie_russian', name: 'Russian twist', sets: '3 series de 20 toques (10 por lado)',
+        svg: 'russian_twist',
+        tips: [
+          'Siéntate con las rodillas flexionadas, pies levemente levantados o apoyados.',
+          'Inclínate unos 45° hacia atrás, espalda recta.',
+          'Sujeta la mancuerna con ambas manos y gira el torso de lado a lado.',
+          'Cada vez que tocas un lado cuenta como 1 toque.',
+          'Mantén el abdomen contraído durante todo el ejercicio.',
+        ]
+      },
+    ]
+  }
+};
+
+// ─── TASKS ────────────────────────────────────────────────────────────────────
+
+const TASKS = {
+  colegio: [
+    { id: 'c_despertar',  emoji: '☀️', label: 'Despertar', meta: '~6:40–6:50', section: 'Mañana' },
+    { id: 'c_agua_m',     emoji: '💧', label: 'Tomar un vaso de agua', section: 'Mañana' },
+    { id: 'c_cerave_m',   emoji: '🧼', label: 'Lavar la cara con CeraVe + agua tibia', section: 'Mañana' },
+    { id: 'c_bloq',       emoji: '🧴', label: 'Bloqueador solar', meta: 'Obligatorio con doxiciclina', section: 'Mañana' },
+    { id: 'c_doxy',       emoji: '💊', label: 'Doxiciclina + vaso de agua', meta: 'Sin lácteos, no acostarse 30 min después', section: 'Mañana', optional: true },
+    { id: 'c_afeitar_m',  emoji: '🪒', label: 'Afeitada bigote (día por medio)', meta: 'Piel seca, pasadas suaves', section: 'Mañana', optional: true },
+    { id: 'c_dientes_m',  emoji: '🦷', label: 'Lavarse los dientes', section: 'Mañana' },
+    { id: 'c_salir7',     emoji: '🎒', label: 'Salir a las 7:30', section: 'Mañana' },
+    { id: 'c_jornada',    emoji: '🏫', label: 'Jornada de colegio (8:15 – 16:15)', meta: 'Marcar al volver', section: 'Colegio' },
+    { id: 'c_colacion',   emoji: '🍎', label: 'Colación / merienda al llegar', section: 'Tarde / Noche' },
+    { id: 'c_estudio',    emoji: '📖', label: 'Bloque de estudio / tareas', meta: '1.5–2 h con descansos cada ~45 min', section: 'Tarde / Noche' },
+    { id: 'c_salir',      emoji: '🛍️', label: 'Salir a pasear / comprar / hacer algo', section: 'Tarde / Noche', optional: true },
+    { id: 'c_ducha',      emoji: '🚿', label: 'Baño / ducha', meta: '~20:00', section: 'Tarde / Noche' },
+    { id: 'c_cerave_n',   emoji: '🧼', label: 'Lavar la cara con CeraVe (noche)', section: 'Tarde / Noche' },
+    { id: 'c_adapaleno',  emoji: '🧴', label: 'Adapaleno en toda la cara', meta: 'Capa fina, cara seca. Hidratante si queda tirante', section: 'Tarde / Noche' },
+    { id: 'c_afeitar_n',  emoji: '🪒', label: 'Afeitada completa con prestobarba', meta: '1 vez/semana de noche, post-ducha', section: 'Tarde / Noche', optional: true },
+    { id: 'c_pc',         emoji: '💻', label: 'Apagar el computador', meta: 'Entre las 21:00 y 22:00', section: 'Tarde / Noche' },
+    { id: 'c_dormir',     emoji: '😴', label: 'Dormir', meta: '22:15', section: 'Tarde / Noche' },
+  ],
+  vacaciones: [
+    { id: 'v_despertar',  emoji: '😴', label: 'Despertar', meta: 'Entre las 9:00 y 11:00, sin apuro', section: 'Mañana' },
+    { id: 'v_agua',       emoji: '💧', label: 'Tomar agua al despertar', section: 'Mañana' },
+    { id: 'v_cerave_m',   emoji: '🧼', label: 'Lavar la cara con CeraVe + bloqueador', section: 'Mañana' },
+    { id: 'v_doxy',       emoji: '💊', label: 'Doxiciclina + vaso de agua', meta: 'Sin lácteos', section: 'Mañana', optional: true },
+    { id: 'v_desayuno',   emoji: '🍳', label: 'Desayuno', section: 'Mañana' },
+    { id: 'v_estudio',    emoji: '📖', label: 'Avanzar materia / estudiar un rato', section: 'Tarde', optional: true },
+    { id: 'v_ocio',       emoji: '🎮', label: 'Tiempo libre / juegos / ocio', section: 'Tarde' },
+    { id: 'v_salir',      emoji: '🛍️', label: 'Salir a pasear / comprar / hacer algo', section: 'Tarde', optional: true },
+    { id: 'v_ducha',      emoji: '🚿', label: 'Baño en la noche', meta: '~20:00', section: 'Noche' },
+    { id: 'v_cerave_n',   emoji: '🧼', label: 'Lavar la cara con CeraVe (noche)', section: 'Noche' },
+    { id: 'v_adapaleno',  emoji: '🧴', label: 'Adapaleno en toda la cara', meta: 'Capa fina', section: 'Noche' },
+    { id: 'v_afeitar',    emoji: '🪒', label: 'Afeitada (según corresponda)', section: 'Noche', optional: true },
+    { id: 'v_pc',         emoji: '💻', label: 'Apagar el computador', meta: '23:00', section: 'Noche' },
+    { id: 'v_dormir',     emoji: '😴', label: 'Dormir', meta: '00:00 (medianoche)', section: 'Noche' },
+  ],
+  feriado: [
+    { id: 'f_despertar',  emoji: '😴', label: 'Despertar tarde', meta: 'Entre las 9:00 y 11:00', section: 'Mañana' },
+    { id: 'f_agua',       emoji: '💧', label: 'Agua al despertar', section: 'Mañana' },
+    { id: 'f_cerave_m',   emoji: '🧼', label: 'Lavar la cara con CeraVe + bloqueador', section: 'Mañana' },
+    { id: 'f_doxy',       emoji: '💊', label: 'Doxiciclina + vaso de agua', meta: 'Sin lácteos', section: 'Mañana', optional: true },
+    { id: 'f_desayuno',   emoji: '🍳', label: 'Desayuno', section: 'Mañana' },
+    { id: 'f_estudio',    emoji: '📖', label: 'Avanzar materia / estudiar', section: 'Tarde', optional: true },
+    { id: 'f_ocio',       emoji: '🎮', label: 'Tiempo libre', section: 'Tarde' },
+    { id: 'f_salir',      emoji: '🛍️', label: 'Salir a pasear / comprar / hacer algo', section: 'Tarde', optional: true },
+    { id: 'f_ducha',      emoji: '🚿', label: 'Baño en la noche', meta: '~20:00', section: 'Noche' },
+    { id: 'f_cerave_n',   emoji: '🧼', label: 'Lavar la cara con CeraVe (noche)', section: 'Noche' },
+    { id: 'f_adapaleno',  emoji: '🧴', label: 'Adapaleno en toda la cara', section: 'Noche' },
+    { id: 'f_pc',         emoji: '💻', label: 'Apagar el computador', meta: 'Entre las 21:00 y 22:00 (como día laboral)', section: 'Noche' },
+    { id: 'f_dormir',     emoji: '😴', label: 'Dormir', meta: '22:15 (como día laboral)', section: 'Noche' },
+  ]
+};
+
+const MEDALS = [
+  { id: 'm3',   label: '3 días',   emoji: '🌱', threshold: 3,   type: 'streak' },
+  { id: 'm7',   label: '7 días',   emoji: '⭐', threshold: 7,   type: 'streak' },
+  { id: 'm14',  label: '14 días',  emoji: '🌟', threshold: 14,  type: 'streak' },
+  { id: 'm30',  label: '30 días',  emoji: '🏆', threshold: 30,  type: 'streak' },
+  { id: 'xp100',  label: '100 XP',   emoji: '💜', threshold: 100,  type: 'xp' },
+  { id: 'xp500',  label: '500 XP',   emoji: '💛', threshold: 500,  type: 'xp' },
+  { id: 'xp1000', label: '1000 XP',  emoji: '🔮', threshold: 1000, type: 'xp' },
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function loadState() {
+  return {
+    mode: localStorage.getItem('mode') || 'colegio',
+    checked: JSON.parse(localStorage.getItem('checked_' + todayKey()) || '{}'),
+    workoutChecked: JSON.parse(localStorage.getItem('wk_' + todayKey()) || '{}'),
+    streak: parseInt(localStorage.getItem('streak') || '0'),
+    xp: parseInt(localStorage.getItem('xp') || '0'),
+    history: JSON.parse(localStorage.getItem('history') || '{}'),
+    sound: localStorage.getItem('sound') !== 'false',
+    lastDate: localStorage.getItem('lastDate') || '',
+    earnedMedals: JSON.parse(localStorage.getItem('earnedMedals') || '[]'),
+  };
+}
+
+let state = loadState();
+
+function save() {
+  localStorage.setItem('mode', state.mode);
+  localStorage.setItem('checked_' + todayKey(), JSON.stringify(state.checked));
+  localStorage.setItem('wk_' + todayKey(), JSON.stringify(state.workoutChecked));
+  localStorage.setItem('streak', String(state.streak));
+  localStorage.setItem('xp', String(state.xp));
+  localStorage.setItem('history', JSON.stringify(state.history));
+  localStorage.setItem('sound', String(state.sound));
+  localStorage.setItem('lastDate', todayKey());
+  localStorage.setItem('earnedMedals', JSON.stringify(state.earnedMedals));
+}
+
+// ─── DAILY RESET ─────────────────────────────────────────────────────────────
+
+function checkDailyReset() {
+  const today = todayKey();
+  if (state.lastDate && state.lastDate !== today) {
+    processPreviousDay(state.lastDate);
+    state.checked = {};
+    state.workoutChecked = {};
+    state.lastDate = today;
+    save();
+  }
+}
+
+function processPreviousDay(dateKey) {
+  const prevChecked = JSON.parse(localStorage.getItem('checked_' + dateKey) || '{}');
+  const tasks = TASKS[state.mode];
+  const required = tasks.filter(t => !t.optional);
+  const done = required.filter(t => prevChecked[t.id]).length;
+  const ratio = required.length > 0 ? done / required.length : 0;
+  let dayStatus = ratio >= 0.8 ? 'done' : ratio > 0 ? 'partial' : 'missed';
+  if (ratio >= 0.8) state.streak += 1; else state.streak = 0;
+  state.history[dateKey] = dayStatus;
+  save();
+}
+
+// ─── PREVIEW DAY ─────────────────────────────────────────────────────────────
+
+let previewDay = null; // null = real today
+
+const DAYS_ES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+function cyclePreviewDay() {
+  const realDow = new Date().getDay();
+  if (previewDay === null) {
+    previewDay = (realDow + 1) % 7;
+  } else {
+    previewDay = (previewDay + 1) % 7;
+    if (previewDay === realDow) previewDay = (previewDay + 1) % 7; // skip real today
+  }
+  const bar = document.getElementById('preview-bar');
+  bar.classList.add('visible');
+  bar.innerHTML = `← Volver al día actual &nbsp;|&nbsp; Viendo: <b>${DAYS_ES[previewDay]}</b>`;
+  updateDateLabel();
+  renderTasks();
+  updateProgress();
+}
+
+function clearPreview() {
+  previewDay = null;
+  document.getElementById('preview-bar').classList.remove('visible');
+  updateDateLabel();
+  renderTasks();
+  updateProgress();
+}
+
+// ─── TODAY'S WORKOUT ─────────────────────────────────────────────────────────
+
+function todayWorkout() {
+  const dow = previewDay !== null ? previewDay : new Date().getDay();
+  return WORKOUTS[dow] || null;
+}
+
+// ─── PROGRESS ────────────────────────────────────────────────────────────────
+
+function getProgress() {
+  const tasks = TASKS[state.mode];
+  const required = tasks.filter(t => !t.optional);
+  const done = required.filter(t => state.checked[t.id]).length;
+  return { done, total: required.length };
+}
+
+function updateProgress() {
+  const { done, total } = getProgress();
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-count').textContent = `${done}/${total}`;
+  document.getElementById('streak-count').textContent = state.streak;
+  document.getElementById('xp-count').textContent = state.xp;
+
+  if (done === total && total > 0) {
+    const key = 'celebrated_' + todayKey();
+    if (!sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, '1');
+      setTimeout(() => {
+        showToast('🔥 ¡Racha del día asegurada! ¡Excelente!');
+        spawnConfetti();
+        playSound('win');
+      }, 400);
+    }
+  }
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+
+function setMode(mode) {
+  state.mode = mode;
+  save();
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  renderTasks();
+  updateProgress();
+  document.getElementById('reminders-section').style.display =
+    mode === 'colegio' ? '' : 'none';
+}
+
+function workoutSectionFor(section) {
+  // Returns the section name where Físico should be injected (after this section)
+  const sectionMap = {
+    colegio: 'Tarde / Noche',
+    vacaciones: 'Tarde',
+    feriado: 'Tarde',
+  };
+  return sectionMap[state.mode];
+}
+
+function renderTasks() {
+  const container = document.getElementById('tasks-container');
+  const tasks = TASKS[state.mode];
+  const sections = [...new Set(tasks.map(t => t.section))];
+  const workout = todayWorkout();
+  const injectAfter = workoutSectionFor();
+
+  let html = '';
+  for (const sec of sections) {
+    const secTasks = tasks.filter(t => t.section === sec);
+    html += `<div class="section" style="margin-bottom:12px">
+      <div class="section-title">${sec}</div>
+      ${secTasks.map(t => renderTask(t)).join('')}
+    </div>`;
+
+    if (sec === injectAfter && workout) {
+      html += renderWorkoutSection(workout);
+    }
+  }
+
+  container.innerHTML = html;
+
+  container.querySelectorAll('.task-item').forEach(el => {
+    el.addEventListener('click', () => toggleTask(el.dataset.id));
+  });
+}
+
+function renderTask(t) {
+  const checked = !!state.checked[t.id];
+  return `
+    <div class="task-item ${checked ? 'completed' : ''} ${t.optional ? 'optional' : ''}" data-id="${t.id}" id="task-${t.id}">
+      <div class="task-check">${checked ? '✓' : ''}</div>
+      <div class="task-content">
+        <div class="task-label">
+          ${t.emoji} ${t.label}
+          ${t.optional ? '<span class="badge-optional">opcional</span>' : ''}
+        </div>
+        ${t.meta ? `<div class="task-meta">${t.meta}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// ─── WORKOUT RENDER ──────────────────────────────────────────────────────────
+
+function renderWorkoutSection(workout) {
+  const exercises = workout.exercises;
+  const doneCount = exercises.filter(e => state.workoutChecked[e.id]).length;
+  const dots = exercises.map(e =>
+    `<div class="workout-dot ${state.workoutChecked[e.id] ? 'done' : ''}"></div>`
+  ).join('');
+
+  const exRows = exercises.map(e => {
+    const done = !!state.workoutChecked[e.id];
+    return `
+      <div class="exercise-item ${done ? 'ex-done' : ''}" id="ex-${e.id}">
+        <div class="exercise-check" onclick="toggleExercise('${e.id}')">${done ? '✓' : ''}</div>
+        <div class="exercise-content" onclick="toggleExercise('${e.id}')">
+          <div class="exercise-name">${e.name}</div>
+          <div class="exercise-sets">${e.sets}</div>
+        </div>
+        <div class="exercise-info-btn" onclick="showExerciseModal('${e.id}')">?</div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="section" style="margin-bottom:12px" id="workout-section">
+      <div class="workout-header" onclick="toggleWorkout()">
+        <div class="workout-header-left">
+          <span style="font-size:22px">💪</span>
+          <div>
+            <div class="workout-title">Físico — ${workout.name}</div>
+            <div class="workout-subtitle">${doneCount}/${exercises.length} ejercicios completados</div>
+            <div class="workout-progress-mini">${dots}</div>
+          </div>
+        </div>
+        <div class="workout-arrow" id="workout-arrow">▶</div>
+      </div>
+      <div class="workout-body" id="workout-body">
+        <div class="workout-warmup">
+          ⚡ <b>5 min de calentamiento antes:</b> movilidad articular + sentadillas sin peso. 30–60 seg de descanso entre series.
+        </div>
+        ${exRows}
+        <div class="workout-tips">
+          <b>Recuerda:</b> Con 7.5 kg en curl, press y elevaciones laterales, si se siente fácil baja MUY lento (3–4 seg) para que cueste más. Deja siempre un día de descanso entre sesiones.
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleWorkout() {
+  const body = document.getElementById('workout-body');
+  const arrow = document.getElementById('workout-arrow');
+  if (!body) return;
+  const isOpen = body.classList.toggle('open');
+  arrow.classList.toggle('open', isOpen);
+}
+
+// ─── EXERCISE TOGGLE ─────────────────────────────────────────────────────────
+
+function toggleExercise(id) {
+  const was = !!state.workoutChecked[id];
+  state.workoutChecked[id] = !was;
+
+  if (!was) {
+    state.xp += 4;
+    playSound('check');
+    checkMedals();
+  } else {
+    state.xp = Math.max(0, state.xp - 4);
+  }
+
+  save();
+
+  const el = document.getElementById('ex-' + id);
+  if (el) {
+    const done = state.workoutChecked[id];
+    el.classList.toggle('ex-done', done);
+    el.querySelector('.exercise-check').textContent = done ? '✓' : '';
+    if (done) {
+      el.classList.add('just-checked');
+      setTimeout(() => el.classList.remove('just-checked'), 400);
+    }
+  }
+
+  // Update dots and subtitle
+  const workout = todayWorkout();
+  if (workout) {
+    const exercises = workout.exercises;
+    const doneCount = exercises.filter(e => state.workoutChecked[e.id]).length;
+    const sub = document.querySelector('#workout-section .workout-subtitle');
+    if (sub) sub.textContent = `${doneCount}/${exercises.length} ejercicios completados`;
+    const dotsEl = document.querySelector('#workout-section .workout-progress-mini');
+    if (dotsEl) {
+      dotsEl.innerHTML = exercises.map(e =>
+        `<div class="workout-dot ${state.workoutChecked[e.id] ? 'done' : ''}"></div>`
+      ).join('');
+    }
+
+    if (doneCount === exercises.length) {
+      showToast('💪 ¡Sesión de físico completada!');
+      spawnConfetti();
+      playSound('win');
+    }
+  }
+
+  updateProgress();
+}
+
+// ─── EXERCISE MODAL ──────────────────────────────────────────────────────────
+
+function showExerciseModal(id) {
+  const workout = todayWorkout();
+  if (!workout) return;
+  const ex = workout.exercises.find(e => e.id === id);
+  if (!ex) return;
+
+  document.getElementById('modal-title').textContent = ex.name;
+  document.getElementById('modal-illustration').innerHTML = SVG[ex.svg] || '';
+  document.getElementById('modal-sets').innerHTML = `🏋️ ${ex.sets}`;
+  document.getElementById('modal-tips').innerHTML = ex.tips.map(t => `<li>${t}</li>`).join('');
+
+  document.getElementById('ex-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('ex-modal-overlay')) closeModalDirect();
+}
+
+function closeModalDirect() {
+  document.getElementById('ex-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ─── TOGGLE TASK ─────────────────────────────────────────────────────────────
+
+function toggleTask(id) {
+  const wasChecked = !!state.checked[id];
+  state.checked[id] = !wasChecked;
+
+  if (!wasChecked) {
+    const task = TASKS[state.mode].find(t => t.id === id);
+    state.xp += task.optional ? 3 : 5;
+    playSound('check');
+    checkMedals();
+  } else {
+    const task = TASKS[state.mode].find(t => t.id === id);
+    state.xp = Math.max(0, state.xp - (task.optional ? 3 : 5));
+  }
+
+  save();
+
+  const el = document.getElementById('task-' + id);
+  if (el) {
+    const checked = state.checked[id];
+    el.classList.toggle('completed', checked);
+    el.querySelector('.task-check').textContent = checked ? '✓' : '';
+    if (checked) {
+      el.classList.add('just-checked');
+      setTimeout(() => el.classList.remove('just-checked'), 400);
+    }
+  }
+
+  updateProgress();
+}
+
+// ─── CALENDAR ────────────────────────────────────────────────────────────────
+
+function renderCalendar() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayDate = today.getDate();
+
+  const DAYS = ['Do','Lu','Ma','Mi','Ju','Vi','Sá'];
+  let html = DAYS.map(d => `<div class="cal-header-day">${d}</div>`).join('');
+  for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = d === todayDate;
+    const status = state.history[key];
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    else if (d > todayDate) cls += ' future';
+    else if (status === 'done') cls += ' done';
+    else if (status === 'partial') cls += ' partial';
+    else if (status === 'missed') cls += ' missed';
+    html += `<div class="${cls}">${d}</div>`;
+  }
+  document.getElementById('calendar-grid').innerHTML = html;
+}
+
+// ─── MEDALS ──────────────────────────────────────────────────────────────────
+
+function checkMedals() {
+  MEDALS.forEach(m => {
+    if (state.earnedMedals.includes(m.id)) return;
+    const val = m.type === 'streak' ? state.streak : state.xp;
+    if (val >= m.threshold) {
+      state.earnedMedals.push(m.id);
+      showToast(`${m.emoji} ¡Logro desbloqueado: ${m.label}!`);
+      spawnConfetti();
+    }
+  });
+  renderMedals();
+}
+
+function renderMedals() {
+  document.getElementById('medals-row').innerHTML = MEDALS.map(m => {
+    const earned = state.earnedMedals.includes(m.id);
+    return `<div class="medal ${earned ? 'earned' : ''}">
+      <div class="medal-emoji">${m.emoji}</div>
+      <div>${m.label}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── REMINDERS ───────────────────────────────────────────────────────────────
+
+function toggleReminders() {
+  const content = document.getElementById('reminder-content');
+  const arrow = document.getElementById('reminder-arrow');
+  content.classList.toggle('open');
+  arrow.textContent = content.classList.contains('open') ? '▲' : '▼';
+}
+
+// ─── RESET DAY ───────────────────────────────────────────────────────────────
+
+function resetDay() {
+  if (!confirm('¿Reiniciar las tareas de hoy? El historial y la racha no cambian.')) return;
+  state.checked = {};
+  state.workoutChecked = {};
+  save();
+  renderTasks();
+  updateProgress();
+  showToast('Día reiniciado ✅');
+}
+
+// ─── SOUND ───────────────────────────────────────────────────────────────────
+
+function toggleSound() {
+  state.sound = !state.sound;
+  save();
+  document.getElementById('sound-toggle-sw').classList.toggle('on', state.sound);
+}
+
+function playSound(type) {
+  if (!state.sound) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (type === 'check') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(660, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.2);
+    } else if (type === 'win') {
+      [523, 659, 784, 1047].forEach((freq, i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.frequency.value = freq; o.type = 'sine';
+        g.gain.setValueAtTime(0.12, ctx.currentTime + i * 0.1);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.2);
+        o.start(ctx.currentTime + i * 0.1); o.stop(ctx.currentTime + i * 0.1 + 0.25);
+      });
+    }
+  } catch(e) {}
+}
+
+// ─── CONFETTI ────────────────────────────────────────────────────────────────
+
+function spawnConfetti() {
+  const container = document.getElementById('confetti');
+  const colors = ['#7c3aed','#a855f7','#ec4899','#22c55e','#eab308','#f97316'];
+  for (let i = 0; i < 30; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-delay:${Math.random()*0.5}s;
+      animation-duration:${1+Math.random()}s;
+      width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+    `;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+  }
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+// ─── DATE LABEL ──────────────────────────────────────────────────────────────
+
+function updateDateLabel() {
+  const MONTHS_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  if (previewDay === null) {
+    const now = new Date();
+    document.getElementById('date-label').textContent =
+      `${DAYS_ES[now.getDay()]} ${now.getDate()} de ${MONTHS_ES[now.getMonth()]}`;
+  } else {
+    document.getElementById('date-label').textContent = DAYS_ES[previewDay];
+  }
+}
+
+function renderDateLabel() { updateDateLabel(); }
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
+function init() {
+  checkDailyReset();
+  renderDateLabel();
+  setMode(state.mode);
+  document.getElementById('sound-toggle-sw').classList.toggle('on', state.sound);
+  document.getElementById('reminders-section').style.display =
+    state.mode === 'colegio' ? '' : 'none';
+  renderCalendar();
+  renderMedals();
+  updateProgress();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  }
+
+  const now = new Date();
+  const msToMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1) - now;
+  setTimeout(() => { checkDailyReset(); renderDateLabel(); renderCalendar(); location.reload(); }, msToMidnight + 1000);
+}
+
+init();
+</script>
+</body>
+</html>
